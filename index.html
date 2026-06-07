@@ -26,10 +26,18 @@
 * { box-sizing: border-box; }
 
 body {
-    margin: 0; padding: 20px; min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
     font-family: 'Inter', sans-serif;
-    background: radial-gradient(circle at top right, #e2e8f0, transparent 50%), radial-gradient(circle at bottom left, #ccfbf1, transparent 50%), var(--bg);
-    color: var(--text); display: flex; justify-content: center; transition: background 0.4s ease;
+    background:
+        radial-gradient(circle at top right, #e2e8f0, transparent 50%),
+        radial-gradient(circle at bottom left, #ccfbf1, transparent 50%),
+        var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    transition: background 0.4s ease;
 }
 
 body.flash-ok { background: #d1fae5 !important; }
@@ -44,8 +52,8 @@ h1 { margin: 0; font-size: 2rem; font-weight: 700; color: #0f172a; }
 @media (min-width: 640px) { .row { grid-template-columns: 1fr 1fr; } }
 
 label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; color: #475569; }
-select, input[type="text"] { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-size: 15px; transition: .3s; }
-select:focus, input[type="text"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16,185,129,.15); }
+select { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-size: 15px; transition: .3s; cursor: pointer; }
+select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16,185,129,.15); }
 
 button {
     width: 100%; margin-top: 25px; padding: 15px; border: none; border-radius: 14px;
@@ -62,29 +70,17 @@ button.btn-stop {
 button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
 
 #reader {
-    margin: 0 auto; width: 100%; max-width: 420px; overflow: hidden;
-    border-radius: 22px; border: 0px solid transparent; background: #f8fafc;
-    max-height: 0px; transition: max-height 0.4s ease, margin 0.3s ease;
+    margin: 30px auto 20px; width: 100%; max-width: 420px; overflow: hidden;
+    border-radius: 22px; border: 3px solid rgba(16,185,129,.3); background: #f8fafc;
+    min-height: 250px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
-#reader.active {
-    margin: 30px auto 20px; max-height: 450px;
-    border: 3px solid rgba(16,185,129,.3); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-}
-
-.manual-section {
-    margin: 20px auto; width: 100%; max-width: 420px; padding: 20px;
-    background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 20px;
-    animation: fadeIn .3s ease; display: none;
-}
-.manual-group { display: flex; gap: 10px; margin-top: 8px; }
-.manual-group input { flex: 1; }
-.manual-group button { width: auto; margin-top: 0; padding: 0 24px; }
 
 .status { margin-top: 20px; padding: 16px 18px; border-radius: 16px; font-weight: 600; font-size: 1.05rem; line-height: 1.5; border-left: 5px solid; animation: fadeIn .3s ease; }
 .ok { background: #e6f4ea !important; border-color: #137333 !important; color: #137333 !important; }
 .warn { background: #fef7e0 !important; border-color: #b06000 !important; color: #b06000 !important; }
 .danger { background: #fce8e6 !important; border-color: #c5221f !important; color: #c5221f !important; }
 
+/* SECCIÓN DE HISTORIAL EN PANTALLA */
 .history-section { margin-top: 35px; border-top: 1px dashed #cbd5e1; padding-top: 25px; }
 .history-title { font-size: 1.1rem; font-weight: 700; color: #334155; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
 .history-list { display: flex; flex-direction: column; gap: 10px; }
@@ -93,6 +89,7 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     padding: 12px 16px; border-radius: 12px; background: #f8fafc;
     border: 1px solid #e2e8f0; font-size: 0.95rem; animation: slideIn 0.3s ease-out;
 }
+/* Estilo especial para cuando el item guardado es un error */
 .history-item.item-error { border-color: #fca5a5; background: #fff5f5; }
 
 .history-info { display: flex; flex-direction: column; gap: 2px; }
@@ -122,17 +119,8 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     </div>
     
     <button id="btnStart" type="button">Activar cámara</button>
-    
-    <div id="manualSection" class="manual-section">
-      <label for="manualId">Código / ID Manual</label>
-      <div class="manual-group">
-        <input type="text" id="manualId" placeholder="Ej. 10293847" autocomplete="off">
-        <button id="btnManualSubmit" type="button">Enviar</button>
-      </div>
-    </div>
-
     <div id="reader"></div>
-    <div id="status" class="status">Pulsa "Activar cámara" para iniciar o usa el registro manual.</div>
+    <div id="status" class="status">Pulsa "Activar cámara" para iniciar.</div>
 
     <div class="history-section">
       <div class="history-title">Últimos Registros de la Sesión</div>
@@ -144,28 +132,27 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
   </div></div>
 
   <script>
-    // PON AQUÍ TU NUEVA URL GENERADA EN EL PASO 1
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJ5u9zbPsPPnHEaJFT2dKOC5lxgxXQa7ZuQN_0tEQ-WTlWANx5uJ-zXhinXHIHyGeU/exec';
-    
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzGGZGQm2zr1mF21fUk_y4pBXl3o7nLqZg7clE_gVQ5agKoX6lpX5jmE6DRa5ClmF1H/exec';
     let html5QrCode = null;
     let currentCameraId = '';
     let lastScan = { text: '', time: 0 };
     let isRegistering = false;
     let scannerRunning = false;
+    
     let listaRegistrosLocales = [];
-
-    document.addEventListener("DOMContentLoaded", () => {
-      actualizarInterfazBoton(false);
-    });
 
     function setStatus(msg, type) {
       const el = document.getElementById('status');
-      el.textContent = msg; el.className = 'status ' + (type || '');
-      const body = document.body; body.className = ''; 
+      el.textContent = msg;
+      el.className = 'status ' + (type || '');
+      
+      const body = document.body;
+      body.className = ''; 
       if (type === 'ok') { body.classList.add('flash-ok'); setTimeout(() => body.classList.remove('flash-ok'), 1500); }
       else if (type === 'danger') { body.classList.add('flash-danger'); setTimeout(() => body.classList.remove('flash-danger'), 2000); }
     }
 
+    // Modificado para recibir un parámetro "esError" opcional
     function agregarAlHistorialLocal(nombre, estado, esError = false) {
       const contenedor = document.getElementById('historyList');
       const noRecordsEl = document.getElementById('noRecords');
@@ -175,14 +162,25 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       const horaString = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
       listaRegistrosLocales.unshift({ nombre, estado, hora: horaString, esError });
-      if (listaRegistrosLocales.length > 5) listaRegistrosLocales.pop();
+      if (listaRegistrosLocales.length > 5) {
+        listaRegistrosLocales.pop();
+      }
 
       contenedor.innerHTML = '';
       listaRegistrosLocales.forEach(item => {
         const div = document.createElement('div');
-        let claseBadge = item.esError ? 'badge-error' : (item.estado.toLowerCase() === 'ingreso' ? 'badge-ingreso' : 'badge-salida');
-        let claseNombreError = item.esError ? 'text-error' : '';
-        div.className = 'history-item' + (item.esError ? ' item-error' : '');
+        
+        let claseBadge = '';
+        let claseNombreError = '';
+        
+        if (item.esError) {
+          div.className = 'history-item item-error';
+          claseBadge = 'badge-error';
+          claseNombreError = 'text-error';
+        } else {
+          div.className = 'history-item';
+          claseBadge = item.estado.toLowerCase() === 'ingreso' ? 'badge-ingreso' : 'badge-salida';
+        }
 
         div.innerHTML = `
           <div class="history-info">
@@ -197,15 +195,18 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
 
     function emitirAudioFeedback(tipo) {
       try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext; if (!AudioContext) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
         const ctx = new AudioContext();
         if (tipo === 'exito') {
-          const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, ctx.currentTime); gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          const osc = ctx.createOscillator(); const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination); osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime); gain.gain.setValueAtTime(0.1, ctx.currentTime);
           osc.start(); osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.08); osc.stop(ctx.currentTime + 0.22);
         } else {
-          const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = 'sawtooth'; osc.frequency.setValueAtTime(160, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.45);
+          const osc = ctx.createOscillator(); const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination); osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(160, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.45);
           gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.45);
           osc.start(); osc.stop(ctx.currentTime + 0.45);
         }
@@ -217,21 +218,29 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     }
 
     function isDuplicate(text) {
-      const now = Date.now(); if (lastScan.text === text && (now - lastScan.time) < 5000) return true;
-      lastScan = { text, time: now }; return false;
+      const now = Date.now(); 
+      if (lastScan.text === text && (now - lastScan.time) < 5000) return true;
+      lastScan = { text, time: now }; 
+      return false;
     }
 
     async function stopScanner() {
       if (!html5QrCode) return;
-      try { await html5QrCode.stop(); await html5QrCode.clear(); } catch(e) {}
-      html5QrCode = null; scannerRunning = false; actualizarInterfazBoton(false);
+      try { 
+        await html5QrCode.stop(); 
+        await html5QrCode.clear(); 
+      } catch(e) {}
+      html5QrCode = null;
+      scannerRunning = false;
+      actualizarInterfazBoton(false);
     }
 
     async function ensureCamerasLoaded() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       stream.getTracks().forEach(track => track.stop());
       const devices = await Html5Qrcode.getCameras();
-      const select = document.getElementById('cameraSelect'); select.innerHTML = '';
+      const select = document.getElementById('cameraSelect');
+      select.innerHTML = '';
       if (!devices || !devices.length) throw new Error('No se detectaron cámaras.');
       devices.forEach((cam, index) => {
         const option = document.createElement('option'); option.value = cam.id;
@@ -239,9 +248,15 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
         option.textContent = /(back|rear|trasera)/i.test(label) ? 'Cámara trasera' : ('Cámara ' + (index + 1));
         select.appendChild(option);
       });
-      if(!currentCameraId) currentCameraId = devices.find(d => /(back|rear|trasera)/i.test((d.label || '').toLowerCase()))?.id || devices[0].id;
+      if(!currentCameraId) {
+        currentCameraId = devices.find(d => /(back|rear|trasera)/i.test((d.label || '').toLowerCase()))?.id || devices[0].id;
+      }
       select.value = currentCameraId;
-      select.onchange = async function(){ currentCameraId = this.value; if(scannerRunning) { await startScanner(); } };
+      
+      select.onchange = async function(){ 
+        currentCameraId = this.value; 
+        if(scannerRunning) { await startScanner(); }
+      };
     }
 
     async function startScanner() {
@@ -250,106 +265,104 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
         if(html5QrCode) { await stopScanner(); }
         await ensureCamerasLoaded();
         html5QrCode = new Html5Qrcode('reader');
-        document.getElementById('reader').classList.add('active');
-        await html5QrCode.start({ deviceId: { exact: currentCameraId } }, { fps: 15, qrbox: { width: 260, height: 260 }, aspectRatio: 1 }, onScanSuccess, function(){});
-        scannerRunning = true; actualizarInterfazBoton(true); setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
+        await html5QrCode.start(
+          { deviceId: { exact: currentCameraId } }, 
+          { fps: 15, qrbox: { width: 260, height: 260 }, aspectRatio: 1 }, 
+          onScanSuccess, 
+          function(){}
+        );
+        scannerRunning = true;
+        actualizarInterfazBoton(true);
+        setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
       } catch (error) { 
         setStatus('No se pudo activar la cámara: ' + error.message, 'danger'); 
-        scannerRunning = false; actualizarInterfazBoton(false);
+        scannerRunning = false;
+        actualizarInterfazBoton(false);
       }
     }
 
     function actualizarInterfazBoton(activo) {
-      const btn = document.getElementById('btnStart'); const readerDiv = document.getElementById('reader'); const manualSection = document.getElementById('manualSection');
+      const btn = document.getElementById('btnStart');
       if(activo) {
-        btn.textContent = "Desactivar cámara"; btn.classList.add('btn-stop'); readerDiv.classList.add('active'); manualSection.style.display = 'none';
+        btn.textContent = "Desactivar cámara";
+        btn.classList.add('btn-stop');
       } else {
-        btn.textContent = "Activar cámara"; btn.classList.remove('btn-stop'); readerDiv.classList.remove('active'); manualSection.style.display = 'block';
+        btn.textContent = "Activar cámara";
+        btn.classList.remove('btn-stop');
       }
     }
 
     async function toggleScanner() {
-      const btn = document.getElementById('btnStart'); btn.disabled = true;
-      if (scannerRunning) { await stopScanner(); setStatus('Cámara desactivada. Modo manual activo.', 'warn'); } 
-      else { await startScanner(); }
+      const btn = document.getElementById('btnStart');
+      btn.disabled = true;
+      if (scannerRunning) {
+        await stopScanner();
+        setStatus('Cámara desactivada por el usuario.', 'warn');
+      } else {
+        await startScanner();
+      }
       btn.disabled = false;
     }
 
-    // NUEVO MÉTODO ESTÁNDAR COMPATIBLE CON CHROME (FETCH)
-    async function registrarConFetch(id, estado) {
-      const urlCompleta = `${APPS_SCRIPT_URL}?page=registrar_jsonp&id=${encodeURIComponent(id)}&estado=${encodeURIComponent(estado)}`;
-      
-      // Control de tiempo de espera (Timeout de 12 segundos)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000);
-
-      try {
-        const respuesta = await fetch(urlCompleta, { 
-          method: 'GET',
-          mode: 'cors', // Crucial para saltar restricciones locales de Chrome
-          signal: controller.signal 
-        });
-        clearTimeout(timeoutId);
-        
-        if (!respuesta.ok) throw new Error('Respuesta del servidor inválida.');
-        return await respuesta.json(); // Retorna el JSON limpio directo de Google
-      } catch (err) {
-        clearTimeout(timeoutId);
-        if (err.name === 'AbortError') throw new Error('Tiempo de espera agotado.');
-        throw err;
-      }
+    function registrarPorJsonp(id, estado) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'qrCallback_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        const script = document.createElement('script');
+        const timeout = setTimeout(() => { cleanup(); reject(new Error('Tiempo de espera agotado.')); }, 12000);
+        function cleanup() { clearTimeout(timeout); if (script.parentNode) script.parentNode.removeChild(script); delete window[callbackName]; }
+        window[callbackName] = function(response) { cleanup(); resolve(response); };
+        script.onerror = function() { cleanup(); reject(new Error('Error de conexión con Apps Script.')); };
+        script.src = APPS_SCRIPT_URL + '?page=registrar_jsonp&id=' + encodeURIComponent(id) + '&estado=' + encodeURIComponent(estado) + '&callback=' + encodeURIComponent(callbackName);
+        document.body.appendChild(script);
+      });
     }
 
-    async function procesarRegistro(idLimpio) {
-      if (isRegistering) return;
-      isRegistering = true;
+    async function onScanSuccess(decodedText) {
+      if (isRegistering || isDuplicate(decodedText)) return;
       
+      isRegistering = true;
+      const id = decodedText.trim();
       const estado = document.getElementById('estado').value;
-      setStatus('Procesando solicitud...', 'warn');
+      
+      setStatus('QR detectado. Procesando solicitud...', 'warn');
 
       try {
-        // Ejecutamos la consulta moderna sin JSONP
-        const response = await registrarConFetch(idLimpio, estado);
-        
-        if (response && response.exito === true) {
-          emitirAudioFeedback('exito'); ejecutarVibracionFeedback('exito');
+        const response = await registrarPorJsonp(id, estado);
+        if (response && response.exito) {
+          emitirAudioFeedback('exito'); 
+          ejecutarVibracionFeedback('exito');
           setStatus(`${response.estado} registrado: ${response.nombre}`, 'ok');
+          
+          // Registro exitoso normal
           agregarAlHistorialLocal(response.nombre, response.estado, false);
-          document.getElementById('manualId').value = '';
         } else {
-          emitirAudioFeedback('error'); ejecutarVibracionFeedback('error');
-          const msgError = (response && response.mensaje) ? response.mensaje : 'No se pudo registrar.';
+          emitirAudioFeedback('error'); 
+          ejecutarVibracionFeedback('error');
+          
+          const msgError = response.mensaje || 'No se pudo registrar.';
           setStatus(msgError, 'danger');
-          agregarAlHistorialLocal(`ID: ${idLimpio} - ${msgError}`, 'ERROR', true);
+          
+          // Agrega el error devuelto por la lógica de Apps Script al historial
+          agregarAlHistorialLocal(`ID: ${id} - ${msgError}`, 'ERROR', true);
         }
       } catch (error) {
-        emitirAudioFeedback('error'); ejecutarVibracionFeedback('error');
-        const msgFallo = 'Error de conexión con Apps Script.';
+        emitirAudioFeedback('error'); 
+        ejecutarVibracionFeedback('error');
+        
+        const msgFallo = error.message || 'Error al registrar.';
         setStatus(msgFallo, 'danger');
-        agregarAlHistorialLocal(`ID: ${idLimpio} - Fallo de red`, 'FALLO', true);
+        
+        // Agrega problemas de conexión o timeouts al historial
+        agregarAlHistorialLocal(`ID: ${id} - ${msgFallo}`, 'FALLO', true);
       }
 
       setTimeout(() => {
         isRegistering = false;
-        if (scannerRunning) setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
-        else setStatus('Modo de ingreso manual activo.', 'ok');
+        if (!isRegistering && scannerRunning) {
+          setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
+        }
       }, 2500);
     }
-
-    async function onScanSuccess(decodedText) {
-      if (isDuplicate(decodedText)) return;
-      await procesarRegistro(decodedText.trim());
-    }
-
-    document.getElementById('btnManualSubmit').addEventListener('click', () => {
-      const input = document.getElementById('manualId'); const valor = input.value.trim();
-      if (!valor) { setStatus('Por favor, escribe un código válido.', 'danger'); return; }
-      procesarRegistro(valor);
-    });
-
-    document.getElementById('manualId').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { const valor = e.target.value.trim(); if (valor) procesarRegistro(valor); }
-    });
 
     document.getElementById('btnStart').addEventListener('click', toggleScanner);
     window.addEventListener('beforeunload', function(){ stopScanner(); });
