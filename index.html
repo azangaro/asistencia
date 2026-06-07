@@ -70,17 +70,24 @@ button.btn-stop {
 }
 button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
 
+/* CONTENEDOR DE LA CÁMARA MEJORADO */
 #reader {
-    margin: 30px auto 20px; width: 100%; max-width: 420px; overflow: hidden;
-    border-radius: 22px; border: 3px solid rgba(16,185,129,.3); background: #f8fafc;
-    min-height: 250px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    margin: 0 auto; width: 100%; max-width: 420px; overflow: hidden;
+    border-radius: 22px; border: 0px solid transparent; background: #f8fafc;
+    max-height: 0px; transition: max-height 0.4s ease, margin 0.3s ease, border 0.1s;
+}
+#reader.active {
+    margin: 30px auto 20px;
+    max-height: 450px;
+    border: 3px solid rgba(16,185,129,.3);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
 /* SECCIÓN INGRESO MANUAL */
 .manual-section {
     margin: 20px auto; width: 100%; max-width: 420px; padding: 20px;
     background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 20px;
-    animation: fadeIn .3s ease; display: none; /* Oculto por defecto */
+    animation: fadeIn .3s ease; display: none;
 }
 .manual-group { display: flex; gap: 10px; margin-top: 8px; }
 .manual-group input { flex: 1; }
@@ -160,7 +167,7 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     
     let listaRegistrosLocales = [];
 
-    // Mostrar el panel manual inicialmente si la cámara está apagada
+    // Inicializar la interfaz correctamente al cargar la página
     document.addEventListener("DOMContentLoaded", () => {
       actualizarInterfazBoton(false);
     });
@@ -287,6 +294,10 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
         if(html5QrCode) { await stopScanner(); }
         await ensureCamerasLoaded();
         html5QrCode = new Html5Qrcode('reader');
+        
+        // Activamos la clase CSS antes de iniciar el escáner para que tenga dimensiones visibles válidas
+        document.getElementById('reader').classList.add('active');
+        
         await html5QrCode.start(
           { deviceId: { exact: currentCameraId } }, 
           { fps: 15, qrbox: { width: 260, height: 260 }, aspectRatio: 1 }, 
@@ -303,7 +314,6 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       }
     }
 
-    // Gestiona qué elementos visuales mostrar según el estado de la cámara
     function actualizarInterfazBoton(activo) {
       const btn = document.getElementById('btnStart');
       const readerDiv = document.getElementById('reader');
@@ -312,13 +322,13 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       if(activo) {
         btn.textContent = "Desactivar cámara";
         btn.classList.add('btn-stop');
-        readerDiv.style.display = 'block';
-        manualSection.style.display = 'none'; // Ocultar entrada manual
+        readerDiv.classList.add('active'); // Muestra el contenedor usando max-height
+        manualSection.style.display = 'none';
       } else {
         btn.textContent = "Activar cámara";
         btn.classList.remove('btn-stop');
-        readerDiv.style.display = 'none';     // Ocultar cuadro negro de la cámara
-        manualSection.style.display = 'block'; // Mostrar entrada manual
+        readerDiv.classList.remove('active'); // Contrae el contenedor a 0px sin destruir el nodo DOM
+        manualSection.style.display = 'block';
       }
     }
 
@@ -347,7 +357,6 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       });
     }
 
-    // Procesa el registro centralizando la lógica (para cámara y teclado)
     async function procesarRegistro(idLimpio) {
       if (isRegistering) return;
       isRegistering = true;
@@ -362,8 +371,58 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
           ejecutarVibracionFeedback('exito');
           setStatus(`${response.estado} registrado: ${response.nombre}`, 'ok');
           agregarAlHistorialLocal(response.nombre, response.estado, false);
-          
-          // Si fue manual, limpia el input tras registrar con éxito
           document.getElementById('manualId').value = '';
         } else {
-          emitirAudioFeedback('error');
+          emitirAudioFeedback('error'); 
+          ejecutarVibracionFeedback('error');
+          const msgError = response.mensaje || 'No se pudo registrar.';
+          setStatus(msgError, 'danger');
+          agregarAlHistorialLocal(`ID: ${idLimpio} - ${msgError}`, 'ERROR', true);
+        }
+      } catch (error) {
+        emitirAudioFeedback('error'); 
+        ejecutarVibracionFeedback('error');
+        const msgFallo = error.message || 'Error al registrar.';
+        setStatus(msgFallo, 'danger');
+        agregarAlHistorialLocal(`ID: ${idLimpio} - ${msgFallo}`, 'FALLO', true);
+      }
+
+      setTimeout(() => {
+        isRegistering = false;
+        if (!isRegistering) {
+          if (scannerRunning) {
+            setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
+          } else {
+            setStatus('Modo de ingreso manual activo.', 'ok');
+          }
+        }
+      }, 2500);
+    }
+
+    async function onScanSuccess(decodedText) {
+      if (isDuplicate(decodedText)) return;
+      await procesarRegistro(decodedText.trim());
+    }
+
+    document.getElementById('btnManualSubmit').addEventListener('click', () => {
+      const input = document.getElementById('manualId');
+      const valor = input.value.trim();
+      if (!valor) {
+        setStatus('Por favor, escribe un código válido.', 'danger');
+        return;
+      }
+      procesarRegistro(valor);
+    });
+
+    document.getElementById('manualId').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const valor = e.target.value.trim();
+        if (valor) procesarRegistro(valor);
+      }
+    });
+
+    document.getElementById('btnStart').addEventListener('click', toggleScanner);
+    window.addEventListener('beforeunload', function(){ stopScanner(); });
+  </script>
+</body>
+</html>
