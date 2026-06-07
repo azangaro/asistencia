@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Escáner QR Blogger</title>
+  <title>Escáner QR - Modo Claro</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-    --bg: #0f172a;
-    --card: rgba(15, 23, 42, 0.85);
-    --primary: #22c55e;
-    --primary-hover: #16a34a;
-    --danger: #ef4444;
+    --bg: #f1f5f9;                 /* Gris muy claro */
+    --card: #ffffff;               /* Tarjeta blanca limpia */
+    --primary: #10b981;            /* Verde esmeralda principal */
+    --primary-hover: #059669;
+    --danger: #ef4444;             /* Rojo principal */
     --warning: #f59e0b;
     --success: #10b981;
-    --text: #f8fafc;
-    --text-secondary: #94a3b8;
-    --border: rgba(255,255,255,.08);
-    --shadow: 0 20px 40px rgba(0,0,0,.35);
+    --text: #1e293b;               /* Texto oscuro para alto contraste */
+    --text-secondary: #64748b;     /* Texto secundario gris */
+    --border: #e2e8f0;             /* Bordes sutiles claros */
+    --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 * {
@@ -32,13 +32,18 @@ body {
     min-height: 100vh;
     font-family: 'Inter', sans-serif;
     background:
-        radial-gradient(circle at top right, #1e293b, transparent 40%),
-        radial-gradient(circle at bottom left, #134e4a, transparent 40%),
+        radial-gradient(circle at top right, #e2e8f0, transparent 50%),
+        radial-gradient(circle at bottom left, #ccfbf1, transparent 50%),
         var(--bg);
     color: var(--text);
     display: flex;
     justify-content: center;
+    transition: background 0.4s ease;
 }
+
+/* Alertas de pantalla completa en tonos pastel claros y luminosos */
+body.flash-ok { background: #d1fae5 !important; }
+body.flash-danger { background: #fee2e2 !important; }
 
 .wrap {
     width: 100%;
@@ -47,7 +52,6 @@ body {
 
 .card {
     background: var(--card);
-    backdrop-filter: blur(14px);
     border: 1px solid var(--border);
     border-radius: 24px;
     padding: 30px;
@@ -58,6 +62,7 @@ h1 {
     margin: 0;
     font-size: 2rem;
     font-weight: 700;
+    color: #0f172a;
 }
 
 .subtitle {
@@ -84,24 +89,25 @@ label {
     margin-bottom: 8px;
     font-size: 0.9rem;
     font-weight: 600;
-    color: #cbd5e1;
+    color: #475569;
 }
 
 select {
     width: 100%;
     padding: 14px 16px;
     border-radius: 14px;
-    border: 1px solid var(--border);
-    background: rgba(30,41,59,.8);
-    color: white;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #0f172a;
     font-size: 15px;
     transition: .3s;
+    cursor: pointer;
 }
 
 select:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(34,197,94,.15);
+    box-shadow: 0 0 0 4px rgba(16,185,129,.15);
 }
 
 button {
@@ -110,22 +116,18 @@ button {
     padding: 15px;
     border: none;
     border-radius: 14px;
-    background: linear-gradient(
-        135deg,
-        var(--primary),
-        var(--primary-hover)
-    );
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
     color: white;
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
     transition: all .3s ease;
-    box-shadow: 0 10px 20px rgba(34,197,94,.25);
+    box-shadow: 0 10px 15px -3px rgba(16,185,129,0.3);
 }
 
 button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(34,197,94,.35);
+    box-shadow: 0 15px 20px -3px rgba(16,185,129,0.4);
 }
 
 button:active {
@@ -138,61 +140,53 @@ button:active {
     max-width: 420px;
     overflow: hidden;
     border-radius: 22px;
-    border: 3px solid rgba(34,197,94,.4);
-    background: #000;
+    border: 3px solid rgba(16,185,129,.3);
+    background: #f8fafc;
     min-height: 250px;
-    box-shadow:
-        0 0 0 6px rgba(34,197,94,.08),
-        0 20px 40px rgba(0,0,0,.4);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
 .status {
     margin-top: 20px;
     padding: 16px 18px;
     border-radius: 16px;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 1.05rem;
     line-height: 1.5;
     border-left: 5px solid;
     animation: fadeIn .3s ease;
 }
 
+/* Cajas de estado con colores claros (estilo Bootstrap/Tailwind claro) */
 .ok {
-    background: rgba(16,185,129,.15);
-    border-color: var(--success);
-    color: #d1fae5;
+    background: #e6f4ea !important;
+    border-color: #137333 !important;
+    color: #137333 !important;
 }
 
 .warn {
-    background: rgba(245,158,11,.15);
-    border-color: var(--warning);
-    color: #fde68a;
+    background: #fef7e0 !important;
+    border-color: #b06000 !important;
+    color: #b06000 !important;
 }
 
 .danger {
-    background: rgba(239,68,68,.15);
-    border-color: var(--danger);
-    color: #fecaca;
+    background: #fce8e6 !important;
+    border-color: #c5221f !important;
+    color: #c5221f !important;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
-
-/* Ajustes del escáner QR */
 
 #reader video {
     border-radius: 18px;
 }
 
 #reader__scan_region {
-    background: #000;
+    background: #f8fafc;
 }
 
 #reader img {
@@ -201,7 +195,7 @@ button:active {
 </style>
 </head>
 <body>
-  <div class="wrap"><div class="card"><h1>Escáner QR</h1>
+  <div class="wrap"><div class="card" id="mainCard"><h1>Escáner QR</h1>
     <p class="subtitle">
   Escanea el código QR para registrar ingresos y salidas.
   El sistema procesará la asistencia automáticamente y continuará listo para el siguiente registro.
@@ -226,6 +220,59 @@ button:active {
       const el = document.getElementById('status');
       el.textContent = msg;
       el.className = 'status ' + (type || '');
+      
+      const body = document.body;
+      body.className = ''; 
+      
+      if (type === 'ok') {
+        body.classList.add('flash-ok');
+        setTimeout(() => body.classList.remove('flash-ok'), 1500);
+      } else if (type === 'danger') {
+        body.classList.add('flash-danger');
+        setTimeout(() => body.classList.remove('flash-danger'), 2000);
+      }
+    }
+
+    function emitirAudioFeedback(tipo) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        
+        if (tipo === 'exito') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime); 
+          gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          osc.start();
+          osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.08); 
+          osc.stop(ctx.currentTime + 0.22);
+        } else {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(160, ctx.currentTime);
+          osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.45);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.45);
+        }
+      } catch (e) {
+        console.warn('AudioContext bloqueado:', e);
+      }
+    }
+
+    function ejecutarVibracionFeedback(tipo) {
+      if (!navigator.vibrate) return;
+      if (tipo === 'exito') {
+        navigator.vibrate(150); 
+      } else {
+        navigator.vibrate([250, 100, 250]); 
+      }
     }
 
     function isDuplicate(text) {
@@ -320,22 +367,29 @@ button:active {
       isRegistering = true;
       const id = decodedText.trim();
       const estado = document.getElementById('estado').value;
+      
       setStatus('QR detectado. Registrando asistencia...', 'warn');
       await stopScanner();
 
       try {
         const response = await registrarPorJsonp(id, estado);
         if (response && response.exito) {
+          emitirAudioFeedback('exito');
+          ejecutarVibracionFeedback('exito');
           setStatus(`${response.estado} registrado: ${response.nombre} ${response.hora ? '- ' + response.hora : ''}`, 'ok');
         } else {
+          emitirAudioFeedback('error');
+          ejecutarVibracionFeedback('error');
           setStatus((response && response.mensaje) || 'No se pudo registrar.', 'danger');
         }
       } catch (error) {
+        emitirAudioFeedback('error');
+        ejecutarVibracionFeedback('error');
         setStatus(error.message || 'Error al registrar.', 'danger');
       }
 
       isRegistering = false;
-      setTimeout(() => { startScanner(); }, 1800);
+      setTimeout(() => { startScanner(); }, 2200);
     }
 
     document.getElementById('btnStart').addEventListener('click', startScanner);
