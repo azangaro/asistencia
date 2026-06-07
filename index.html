@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Escáner QR - Con Historial Claro</title>
+  <title>Escáner QR - Historial Automático</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -73,25 +73,24 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
 .warn { background: #fef7e0 !important; border-color: #b06000 !important; color: #b06000 !important; }
 .danger { background: #fce8e6 !important; border-color: #c5221f !important; color: #c5221f !important; }
 
-/* --- NUEVA SECCIÓN DE ÚLTIMOS REGISTROS --- */
+/* SECCIÓN DE HISTORIAL EN PANTALLA */
 .history-section { margin-top: 35px; border-top: 1px dashed #cbd5e1; padding-top: 25px; }
 .history-title { font-size: 1.1rem; font-weight: 700; color: #334155; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
 .history-list { display: flex; flex-direction: column; gap: 10px; }
 .history-item {
     display: flex; justify-content: space-between; align-items: center;
     padding: 12px 16px; border-radius: 12px; background: #f8fafc;
-    border: 1px solid #e2e8f0; font-size: 0.95rem; animation: fadeIn 0.4s ease;
+    border: 1px solid #e2e8f0; font-size: 0.95rem; animation: slideIn 0.3s ease-out;
 }
 .history-info { display: flex; flex-direction: column; gap: 2px; }
 .history-name { font-weight: 600; color: #1e293b; }
 .history-sub { font-size: 0.8rem; color: #64748b; }
-.badge {
-    padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-}
+.badge { padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
 .badge-ingreso { background: #e6f4ea; color: #137333; border: 1px solid #a7f3d0; }
 .badge-salida { background: #fef7e0; color: #b06000; border: 1px solid #fde68a; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
 #reader video { border-radius: 18px; }
 #reader__scan_region { background: #f8fafc; }
 #reader img { display: none !important; }
@@ -111,21 +110,26 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
     <div id="reader"></div>
     <div id="status" class="status">Pulsa "Activar cámara" para iniciar.</div>
 
+    <!-- SECCIÓN DE ÚLTIMOS REGISTROS -->
     <div class="history-section">
-      <div class="history-title">Últimos Registros del Día</div>
+      <div class="history-title">Últimos Registros de la Sesión</div>
       <div id="historyList" class="history-list">
-        <div style="color: var(--text-secondary); font-size: 0.9rem; text-align: center; padding: 10px;">Esperando lecturas...</div>
+        <div id="noRecords" style="color: var(--text-secondary); font-size: 0.9rem; text-align: center; padding: 10px;">Esperando lecturas...</div>
       </div>
     </div>
 
   </div></div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyovGwibQkDHZQVoyexgO705HnSguUbrlcYDolOFCYF0VAa_0dKg8IEmfao3j4pDw3u/exec';
+    // REEMPLAZA CON TU URL DE APPS SCRIPT SI ES NECESARIO
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzGGZGQm2zr1mF21fUk_y4pBXl3o7nLqZg7clE_gVQ5agKoX6lpX5jmE6DRa5ClmF1H/exec';
     let html5QrCode = null;
     let currentCameraId = '';
     let lastScan = { text: '', time: 0 };
     let isRegistering = false;
+    
+    // Array local para almacenar los últimos registros capturados
+    let listaRegistrosLocales = [];
 
     function setStatus(msg, type) {
       const el = document.getElementById('status');
@@ -138,26 +142,32 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
       else if (type === 'danger') { body.classList.add('flash-danger'); setTimeout(() => body.classList.remove('flash-danger'), 2000); }
     }
 
-    // Renderiza la lista dinámica en el HTML claro
-    function actualizarTablaHistorial(lista) {
+    // Agrega y renderiza el registro en la lista de abajo de forma inmediata
+    function agregarAlHistorialLocal(nombre, estado) {
       const contenedor = document.getElementById('historyList');
-      if (!lista || lista.length === 0) return;
-      
-      contenedor.innerHTML = ''; // Limpiar el "Esperando lecturas..."
-      
-      lista.forEach(item => {
+      const noRecordsEl = document.getElementById('noRecords');
+      if (noRecordsEl) noRecordsEl.remove(); // Quitar el texto de "Esperando lecturas..."
+
+      const ahora = new Date();
+      const horaString = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      // Guardar en el array (máximo 5 registros en pantalla)
+      listaRegistrosLocales.unshift({ nombre, estado, hora: horaString });
+      if (listaRegistrosLocales.length > 5) {
+        listaRegistrosLocales.pop();
+      }
+
+      // Redibujar la lista limpia
+      contenedor.innerHTML = '';
+      listaRegistrosLocales.forEach(item => {
         const div = document.createElement('div');
         div.className = 'history-item';
-        
         const claseBadge = item.estado.toLowerCase() === 'ingreso' ? 'badge-ingreso' : 'badge-salida';
-        // Formatear hora sutil si viene completa
-        let horaMuestra = item.fechaHora ? String(item.fechaHora).split('T')[1] || String(item.fechaHora) : '';
-        if(horaMuestra.includes('.')) horaMuestra = horaMuestra.split('.')[0]; 
 
         div.innerHTML = `
           <div class="history-info">
             <span class="history-name">${item.nombre}</span>
-            <span class="history-sub">${item.area || 'General'} • ${horaMuestra || 'Reciente'}</span>
+            <span class="history-sub">Registrado a las ${item.hora}</span>
           </div>
           <span class="badge ${claseBadge}">${item.estado}</span>
         `;
@@ -253,11 +263,12 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
       try {
         const response = await registrarPorJsonp(id, estado);
         if (response && response.exito) {
-          emitirAudioFeedback('exito'); ejecutarVibracionFeedback('exito');
+          emitirAudioFeedback('exito'); 
+          ejecutarVibracionFeedback('exito');
           setStatus(`${response.estado} registrado: ${response.nombre}`, 'ok');
           
-          // Si el Backend te retorna un nodo de historial (.ultimos), la lista se dibuja sola aquí:
-          if(response.ultimos) actualizarTablaHistorial(response.ultimos);
+          // AGREGA EL ALUMNO AL HISTORIAL LOCAL INMEDIATAMENTE
+          agregarAlHistorialLocal(response.nombre, response.estado);
           
         } else {
           emitirAudioFeedback('error'); ejecutarVibracionFeedback('error');
