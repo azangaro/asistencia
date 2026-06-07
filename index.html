@@ -26,18 +26,10 @@
 * { box-sizing: border-box; }
 
 body {
-    margin: 0;
-    padding: 20px;
-    min-height: 100vh;
+    margin: 0; padding: 20px; min-height: 100vh;
     font-family: 'Inter', sans-serif;
-    background:
-        radial-gradient(circle at top right, #e2e8f0, transparent 50%),
-        radial-gradient(circle at bottom left, #ccfbf1, transparent 50%),
-        var(--bg);
-    color: var(--text);
-    display: flex;
-    justify-content: center;
-    transition: background 0.4s ease;
+    background: radial-gradient(circle at top right, #e2e8f0, transparent 50%), radial-gradient(circle at bottom left, #ccfbf1, transparent 50%), var(--bg);
+    color: var(--text); display: flex; justify-content: center; transition: background 0.4s ease;
 }
 
 body.flash-ok { background: #d1fae5 !important; }
@@ -54,7 +46,6 @@ h1 { margin: 0; font-size: 2rem; font-weight: 700; color: #0f172a; }
 label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; color: #475569; }
 select, input[type="text"] { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-size: 15px; transition: .3s; }
 select:focus, input[type="text"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16,185,129,.15); }
-select { cursor: pointer; }
 
 button {
     width: 100%; margin-top: 25px; padding: 15px; border: none; border-radius: 14px;
@@ -76,10 +67,8 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     max-height: 0px; transition: max-height 0.4s ease, margin 0.3s ease;
 }
 #reader.active {
-    margin: 30px auto 20px;
-    max-height: 450px;
-    border: 3px solid rgba(16,185,129,.3);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    margin: 30px auto 20px; max-height: 450px;
+    border: 3px solid rgba(16,185,129,.3); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
 .manual-section {
@@ -155,7 +144,7 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
   </div></div>
 
   <script>
-    // REEMPLAZA ESTA URL CON TU URL EXACTA DE APPS SCRIPT
+    // PON AQUÍ TU NUEVA URL GENERADA EN EL PASO 1
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzGGZGQm2zr1mF21fUk_y4pBXl3o7nLqZg7clE_gVQ5agKoX6lpX5jmE6DRa5ClmF1H/exec';
     
     let html5QrCode = null;
@@ -171,11 +160,8 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
 
     function setStatus(msg, type) {
       const el = document.getElementById('status');
-      el.textContent = msg;
-      el.className = 'status ' + (type || '');
-      
-      const body = document.body;
-      body.className = ''; 
+      el.textContent = msg; el.className = 'status ' + (type || '');
+      const body = document.body; body.className = ''; 
       if (type === 'ok') { body.classList.add('flash-ok'); setTimeout(() => body.classList.remove('flash-ok'), 1500); }
       else if (type === 'danger') { body.classList.add('flash-danger'); setTimeout(() => body.classList.remove('flash-danger'), 2000); }
     }
@@ -194,17 +180,9 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       contenedor.innerHTML = '';
       listaRegistrosLocales.forEach(item => {
         const div = document.createElement('div');
-        let claseBadge = '';
-        let claseNombreError = '';
-        
-        if (item.esError) {
-          div.className = 'history-item item-error';
-          claseBadge = 'badge-error';
-          claseNombreError = 'text-error';
-        } else {
-          div.className = 'history-item';
-          claseBadge = item.estado.toLowerCase() === 'ingreso' ? 'badge-ingreso' : 'badge-salida';
-        }
+        let claseBadge = item.esError ? 'badge-error' : (item.estado.toLowerCase() === 'ingreso' ? 'badge-ingreso' : 'badge-salida');
+        let claseNombreError = item.esError ? 'text-error' : '';
+        div.className = 'history-item' + (item.esError ? ' item-error' : '');
 
         div.innerHTML = `
           <div class="history-info">
@@ -219,18 +197,15 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
 
     function emitirAudioFeedback(tipo) {
       try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
+        const AudioContext = window.AudioContext || window.webkitAudioContext; if (!AudioContext) return;
         const ctx = new AudioContext();
         if (tipo === 'exito') {
-          const osc = ctx.createOscillator(); const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination); osc.type = 'sine';
-          osc.frequency.setValueAtTime(587.33, ctx.currentTime); gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, ctx.currentTime); gain.gain.setValueAtTime(0.1, ctx.currentTime);
           osc.start(); osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.08); osc.stop(ctx.currentTime + 0.22);
         } else {
-          const osc = ctx.createOscillator(); const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination); osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(160, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.45);
+          const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'sawtooth'; osc.frequency.setValueAtTime(160, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.45);
           gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.45);
           osc.start(); osc.stop(ctx.currentTime + 0.45);
         }
@@ -242,29 +217,21 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     }
 
     function isDuplicate(text) {
-      const now = Date.now(); 
-      if (lastScan.text === text && (now - lastScan.time) < 5000) return true;
-      lastScan = { text, time: now }; 
-      return false;
+      const now = Date.now(); if (lastScan.text === text && (now - lastScan.time) < 5000) return true;
+      lastScan = { text, time: now }; return false;
     }
 
     async function stopScanner() {
       if (!html5QrCode) return;
-      try { 
-        await html5QrCode.stop(); 
-        await html5QrCode.clear(); 
-      } catch(e) {}
-      html5QrCode = null;
-      scannerRunning = false;
-      actualizarInterfazBoton(false);
+      try { await html5QrCode.stop(); await html5QrCode.clear(); } catch(e) {}
+      html5QrCode = null; scannerRunning = false; actualizarInterfazBoton(false);
     }
 
     async function ensureCamerasLoaded() {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       stream.getTracks().forEach(track => track.stop());
       const devices = await Html5Qrcode.getCameras();
-      const select = document.getElementById('cameraSelect');
-      select.innerHTML = '';
+      const select = document.getElementById('cameraSelect'); select.innerHTML = '';
       if (!devices || !devices.length) throw new Error('No se detectaron cámaras.');
       devices.forEach((cam, index) => {
         const option = document.createElement('option'); option.value = cam.id;
@@ -272,15 +239,9 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
         option.textContent = /(back|rear|trasera)/i.test(label) ? 'Cámara trasera' : ('Cámara ' + (index + 1));
         select.appendChild(option);
       });
-      if(!currentCameraId) {
-        currentCameraId = devices.find(d => /(back|rear|trasera)/i.test((d.label || '').toLowerCase()))?.id || devices[0].id;
-      }
+      if(!currentCameraId) currentCameraId = devices.find(d => /(back|rear|trasera)/i.test((d.label || '').toLowerCase()))?.id || devices[0].id;
       select.value = currentCameraId;
-      
-      select.onchange = async function(){ 
-        currentCameraId = this.value; 
-        if(scannerRunning) { await startScanner(); }
-      };
+      select.onchange = async function(){ currentCameraId = this.value; if(scannerRunning) { await startScanner(); } };
     }
 
     async function startScanner() {
@@ -289,75 +250,54 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
         if(html5QrCode) { await stopScanner(); }
         await ensureCamerasLoaded();
         html5QrCode = new Html5Qrcode('reader');
-        
         document.getElementById('reader').classList.add('active');
-        
-        await html5QrCode.start(
-          { deviceId: { exact: currentCameraId } }, 
-          { fps: 15, qrbox: { width: 260, height: 260 }, aspectRatio: 1 }, 
-          onScanSuccess, 
-          function(){}
-        );
-        scannerRunning = true;
-        actualizarInterfazBoton(true);
-        setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
+        await html5QrCode.start({ deviceId: { exact: currentCameraId } }, { fps: 15, qrbox: { width: 260, height: 260 }, aspectRatio: 1 }, onScanSuccess, function(){});
+        scannerRunning = true; actualizarInterfazBoton(true); setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
       } catch (error) { 
         setStatus('No se pudo activar la cámara: ' + error.message, 'danger'); 
-        scannerRunning = false;
-        actualizarInterfazBoton(false);
+        scannerRunning = false; actualizarInterfazBoton(false);
       }
     }
 
     function actualizarInterfazBoton(activo) {
-      const btn = document.getElementById('btnStart');
-      const readerDiv = document.getElementById('reader');
-      const manualSection = document.getElementById('manualSection');
-
+      const btn = document.getElementById('btnStart'); const readerDiv = document.getElementById('reader'); const manualSection = document.getElementById('manualSection');
       if(activo) {
-        btn.textContent = "Desactivar cámara";
-        btn.classList.add('btn-stop');
-        readerDiv.classList.add('active');
-        manualSection.style.display = 'none';
+        btn.textContent = "Desactivar cámara"; btn.classList.add('btn-stop'); readerDiv.classList.add('active'); manualSection.style.display = 'none';
       } else {
-        btn.textContent = "Activar cámara";
-        btn.classList.remove('btn-stop');
-        readerDiv.classList.remove('active');
-        manualSection.style.display = 'block';
+        btn.textContent = "Activar cámara"; btn.classList.remove('btn-stop'); readerDiv.classList.remove('active'); manualSection.style.display = 'block';
       }
     }
 
     async function toggleScanner() {
-      const btn = document.getElementById('btnStart');
-      btn.disabled = true;
-      if (scannerRunning) {
-        await stopScanner();
-        setStatus('Cámara desactivada. Modo manual activo.', 'warn');
-      } else {
-        await startScanner();
-      }
+      const btn = document.getElementById('btnStart'); btn.disabled = true;
+      if (scannerRunning) { await stopScanner(); setStatus('Cámara desactivada. Modo manual activo.', 'warn'); } 
+      else { await startScanner(); }
       btn.disabled = false;
     }
 
-    function registrarPorJsonp(id, estado) {
-      return new Promise((resolve, reject) => {
-        const callbackName = 'qrCallback_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-        const script = document.createElement('script');
+    // NUEVO MÉTODO ESTÁNDAR COMPATIBLE CON CHROME (FETCH)
+    async function registrarConFetch(id, estado) {
+      const urlCompleta = `${APPS_SCRIPT_URL}?page=registrar_jsonp&id=${encodeURIComponent(id)}&estado=${encodeURIComponent(estado)}`;
+      
+      // Control de tiempo de espera (Timeout de 12 segundos)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+      try {
+        const respuesta = await fetch(urlCompleta, { 
+          method: 'GET',
+          mode: 'cors', // Crucial para saltar restricciones locales de Chrome
+          signal: controller.signal 
+        });
+        clearTimeout(timeoutId);
         
-        // El truco está aquí: el timeout limpiará el script solo si Google no responde en absoluto
-        const timeout = setTimeout(() => { cleanup(); reject(new Error('Tiempo de espera agotado.')); }, 12000);
-        
-        function cleanup() { clearTimeout(timeout); if (script.parentNode) script.parentNode.removeChild(script); delete window[callbackName]; }
-        
-        // Esta función recibirá tanto las respuestas exitosas como los mensajes de error del script
-        window[callbackName] = function(response) { 
-          cleanup(); 
-          resolve(response); // Resuelve la promesa de forma exitosa para analizar el contenido del JSON
-        };
-        
-        script.onerror = function() { cleanup(); reject(new Error('Error crítico de red.')); };
-        script.src = APPS_SCRIPT_URL + '?page=registrar_jsonp&id=' + encodeURIComponent(id) + '&estado=' + encodeURIComponent(estado) + '&callback=' + encodeURIComponent(callbackName);
-        document.body.appendChild(script);
-      });
+        if (!respuesta.ok) throw new Error('Respuesta del servidor inválida.');
+        return await respuesta.json(); // Retorna el JSON limpio directo de Google
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') throw new Error('Tiempo de espera agotado.');
+        throw err;
+      }
     }
 
     async function procesarRegistro(idLimpio) {
@@ -368,39 +308,31 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       setStatus('Procesando solicitud...', 'warn');
 
       try {
-        const response = await registrarPorJsonp(idLimpio, estado);
+        // Ejecutamos la consulta moderna sin JSONP
+        const response = await registrarConFetch(idLimpio, estado);
         
-        // Verificamos el contenido real devuelto por tu Google Script
         if (response && response.exito === true) {
-          emitirAudioFeedback('exito'); 
-          ejecutarVibracionFeedback('exito');
+          emitirAudioFeedback('exito'); ejecutarVibracionFeedback('exito');
           setStatus(`${response.estado} registrado: ${response.nombre}`, 'ok');
           agregarAlHistorialLocal(response.nombre, response.estado, false);
           document.getElementById('manualId').value = '';
         } else {
-          // Si llega aquí es porque el script contestó (como en tu prueba), pero exito es false ("Estudiante no encontrado")
-          emitirAudioFeedback('error'); 
-          ejecutarVibracionFeedback('error');
+          emitirAudioFeedback('error'); ejecutarVibracionFeedback('error');
           const msgError = (response && response.mensaje) ? response.mensaje : 'No se pudo registrar.';
           setStatus(msgError, 'danger');
           agregarAlHistorialLocal(`ID: ${idLimpio} - ${msgError}`, 'ERROR', true);
         }
       } catch (error) {
-        // Esto solo se ejecuta si se cae el internet o la URL está mal copiada
-        emitirAudioFeedback('error'); 
-        ejecutarVibracionFeedback('error');
-        const msgFallo = error.message || 'Error de red.';
+        emitirAudioFeedback('error'); ejecutarVibracionFeedback('error');
+        const msgFallo = 'Error de conexión con Apps Script.';
         setStatus(msgFallo, 'danger');
-        agregarAlHistorialLocal(`ID: ${idLimpio} - ${msgFallo}`, 'FALLO', true);
+        agregarAlHistorialLocal(`ID: ${idLimpio} - Fallo de red`, 'FALLO', true);
       }
 
       setTimeout(() => {
         isRegistering = false;
-        if (scannerRunning) {
-          setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
-        } else {
-          setStatus('Modo de ingreso manual activo.', 'ok');
-        }
+        if (scannerRunning) setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
+        else setStatus('Modo de ingreso manual activo.', 'ok');
       }, 2500);
     }
 
@@ -410,20 +342,13 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     }
 
     document.getElementById('btnManualSubmit').addEventListener('click', () => {
-      const input = document.getElementById('manualId');
-      const valor = input.value.trim();
-      if (!valor) {
-        setStatus('Por favor, escribe un código válido.', 'danger');
-        return;
-      }
+      const input = document.getElementById('manualId'); const valor = input.value.trim();
+      if (!valor) { setStatus('Por favor, escribe un código válido.', 'danger'); return; }
       procesarRegistro(valor);
     });
 
     document.getElementById('manualId').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const valor = e.target.value.trim();
-        if (valor) procesarRegistro(valor);
-      }
+      if (e.key === 'Enter') { const valor = e.target.value.trim(); if (valor) procesarRegistro(valor); }
     });
 
     document.getElementById('btnStart').addEventListener('click', toggleScanner);
