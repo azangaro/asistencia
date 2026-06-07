@@ -3,28 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Escáner QR - Modo Claro</title>
+  <title>Escáner QR - Con Historial Claro</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-    --bg: #f1f5f9;                 /* Gris muy claro */
-    --card: #ffffff;               /* Tarjeta blanca limpia */
-    --primary: #10b981;            /* Verde esmeralda principal */
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --primary: #10b981;
     --primary-hover: #059669;
-    --danger: #ef4444;             /* Rojo principal */
+    --danger: #ef4444;
     --warning: #f59e0b;
     --success: #10b981;
-    --text: #1e293b;               /* Texto oscuro para alto contraste */
-    --text-secondary: #64748b;     /* Texto secundario gris */
-    --border: #e2e8f0;             /* Bordes sutiles claros */
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --border: #e2e8f0;
     --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -41,176 +39,89 @@ body {
     transition: background 0.4s ease;
 }
 
-/* Alertas de pantalla completa en tonos pastel claros y luminosos */
 body.flash-ok { background: #d1fae5 !important; }
 body.flash-danger { background: #fee2e2 !important; }
 
-.wrap {
-    width: 100%;
-    max-width: 750px;
-}
+.wrap { width: 100%; max-width: 750px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 30px; box-shadow: var(--shadow); }
+h1 { margin: 0; font-size: 2rem; font-weight: 700; color: #0f172a; }
+.subtitle { color: var(--text-secondary); margin-top: 10px; line-height: 1.6; }
+.row { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 25px; }
 
-.card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 30px;
-    box-shadow: var(--shadow);
-}
+@media (min-width: 640px) { .row { grid-template-columns: 1fr 1fr; } }
 
-h1 {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #0f172a;
-}
-
-.subtitle {
-    color: var(--text-secondary);
-    margin-top: 10px;
-    line-height: 1.6;
-}
-
-.row {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-    margin-top: 25px;
-}
-
-@media (min-width: 640px) {
-    .row {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #475569;
-}
-
-select {
-    width: 100%;
-    padding: 14px 16px;
-    border-radius: 14px;
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    color: #0f172a;
-    font-size: 15px;
-    transition: .3s;
-    cursor: pointer;
-}
-
-select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(16,185,129,.15);
-}
+label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; color: #475569; }
+select { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-size: 15px; transition: .3s; cursor: pointer; }
+select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16,185,129,.15); }
 
 button {
-    width: 100%;
-    margin-top: 25px;
-    padding: 15px;
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-    color: white;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all .3s ease;
+    width: 100%; margin-top: 25px; padding: 15px; border: none; border-radius: 14px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white;
+    font-size: 16px; font-weight: 700; cursor: pointer; transition: all .3s ease;
     box-shadow: 0 10px 15px -3px rgba(16,185,129,0.3);
 }
-
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 20px -3px rgba(16,185,129,0.4);
-}
-
-button:active {
-    transform: translateY(0);
-}
+button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16,185,129,0.4); }
 
 #reader {
-    margin: 30px auto 20px;
-    width: 100%;
-    max-width: 420px;
-    overflow: hidden;
-    border-radius: 22px;
-    border: 3px solid rgba(16,185,129,.3);
-    background: #f8fafc;
-    min-height: 250px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    margin: 30px auto 20px; width: 100%; max-width: 420px; overflow: hidden;
+    border-radius: 22px; border: 3px solid rgba(16,185,129,.3); background: #f8fafc;
+    min-height: 250px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
-.status {
-    margin-top: 20px;
-    padding: 16px 18px;
-    border-radius: 16px;
-    font-weight: 600;
-    font-size: 1.05rem;
-    line-height: 1.5;
-    border-left: 5px solid;
-    animation: fadeIn .3s ease;
-}
+.status { margin-top: 20px; padding: 16px 18px; border-radius: 16px; font-weight: 600; font-size: 1.05rem; line-height: 1.5; border-left: 5px solid; animation: fadeIn .3s ease; }
+.ok { background: #e6f4ea !important; border-color: #137333 !important; color: #137333 !important; }
+.warn { background: #fef7e0 !important; border-color: #b06000 !important; color: #b06000 !important; }
+.danger { background: #fce8e6 !important; border-color: #c5221f !important; color: #c5221f !important; }
 
-/* Cajas de estado con colores claros (estilo Bootstrap/Tailwind claro) */
-.ok {
-    background: #e6f4ea !important;
-    border-color: #137333 !important;
-    color: #137333 !important;
+/* --- NUEVA SECCIÓN DE ÚLTIMOS REGISTROS --- */
+.history-section { margin-top: 35px; border-top: 1px dashed #cbd5e1; padding-top: 25px; }
+.history-title { font-size: 1.1rem; font-weight: 700; color: #334155; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+.history-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; border-radius: 12px; background: #f8fafc;
+    border: 1px solid #e2e8f0; font-size: 0.95rem; animation: fadeIn 0.4s ease;
 }
+.history-info { display: flex; flex-direction: column; gap: 2px; }
+.history-name { font-weight: 600; color: #1e293b; }
+.history-sub { font-size: 0.8rem; color: #64748b; }
+.badge {
+    padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+}
+.badge-ingreso { background: #e6f4ea; color: #137333; border: 1px solid #a7f3d0; }
+.badge-salida { background: #fef7e0; color: #b06000; border: 1px solid #fde68a; }
 
-.warn {
-    background: #fef7e0 !important;
-    border-color: #b06000 !important;
-    color: #b06000 !important;
-}
-
-.danger {
-    background: #fce8e6 !important;
-    border-color: #c5221f !important;
-    color: #c5221f !important;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-#reader video {
-    border-radius: 18px;
-}
-
-#reader__scan_region {
-    background: #f8fafc;
-}
-
-#reader img {
-    display: none !important;
-}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+#reader video { border-radius: 18px; }
+#reader__scan_region { background: #f8fafc; }
+#reader img { display: none !important; }
 </style>
 </head>
 <body>
-  <div class="wrap"><div class="card" id="mainCard"><h1>Escáner QR</h1>
-    <p class="subtitle">
-  Escanea el código QR para registrar ingresos y salidas.
-  El sistema procesará la asistencia automáticamente y continuará listo para el siguiente registro.
-</p>
+  <div class="wrap"><div class="card" id="mainCard">
+    <h1>Escáner QR</h1>
+    <p class="subtitle">Escanea para registrar asistencias en tiempo real.</p>
+    
     <div class="row">
       <div><label>Estado</label><select id="estado"><option value="INGRESO">INGRESO</option><option value="SALIDA">SALIDA</option></select></div>
       <div><label>Cámara</label><select id="cameraSelect"><option value="">Pulsa "Activar cámara"</option></select></div>
     </div>
+    
     <button id="btnStart" type="button">Activar cámara</button>
     <div id="reader"></div>
     <div id="status" class="status">Pulsa "Activar cámara" para iniciar.</div>
+
+    <div class="history-section">
+      <div class="history-title">Últimos Registros del Día</div>
+      <div id="historyList" class="history-list">
+        <div style="color: var(--text-secondary); font-size: 0.9rem; text-align: center; padding: 10px;">Esperando lecturas...</div>
+      </div>
+    </div>
+
   </div></div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwss7RyR8_0rqkDNKUqRAj0QBbxZs8s5SNQH5neAeatY8Qt8j_FLPUib4_v3nSfcLoX/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyovGwibQkDHZQVoyexgO705HnSguUbrlcYDolOFCYF0VAa_0dKg8IEmfao3j4pDw3u/exec';
     let html5QrCode = null;
     let currentCameraId = '';
     let lastScan = { text: '', time: 0 };
@@ -223,14 +134,35 @@ button:active {
       
       const body = document.body;
       body.className = ''; 
+      if (type === 'ok') { body.classList.add('flash-ok'); setTimeout(() => body.classList.remove('flash-ok'), 1500); }
+      else if (type === 'danger') { body.classList.add('flash-danger'); setTimeout(() => body.classList.remove('flash-danger'), 2000); }
+    }
+
+    // Renderiza la lista dinámica en el HTML claro
+    function actualizarTablaHistorial(lista) {
+      const contenedor = document.getElementById('historyList');
+      if (!lista || lista.length === 0) return;
       
-      if (type === 'ok') {
-        body.classList.add('flash-ok');
-        setTimeout(() => body.classList.remove('flash-ok'), 1500);
-      } else if (type === 'danger') {
-        body.classList.add('flash-danger');
-        setTimeout(() => body.classList.remove('flash-danger'), 2000);
-      }
+      contenedor.innerHTML = ''; // Limpiar el "Esperando lecturas..."
+      
+      lista.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        
+        const claseBadge = item.estado.toLowerCase() === 'ingreso' ? 'badge-ingreso' : 'badge-salida';
+        // Formatear hora sutil si viene completa
+        let horaMuestra = item.fechaHora ? String(item.fechaHora).split('T')[1] || String(item.fechaHora) : '';
+        if(horaMuestra.includes('.')) horaMuestra = horaMuestra.split('.')[0]; 
+
+        div.innerHTML = `
+          <div class="history-info">
+            <span class="history-name">${item.nombre}</span>
+            <span class="history-sub">${item.area || 'General'} • ${horaMuestra || 'Reciente'}</span>
+          </div>
+          <span class="badge ${claseBadge}">${item.estado}</span>
+        `;
+        contenedor.appendChild(div);
+      });
     }
 
     function emitirAudioFeedback(tipo) {
@@ -238,54 +170,33 @@ button:active {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
         const ctx = new AudioContext();
-        
         if (tipo === 'exito') {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(587.33, ctx.currentTime); 
-          gain.gain.setValueAtTime(0.1, ctx.currentTime);
-          osc.start();
-          osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.08); 
-          osc.stop(ctx.currentTime + 0.22);
+          const osc = ctx.createOscillator(); const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination); osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime); gain.gain.setValueAtTime(0.1, ctx.currentTime);
+          osc.start(); osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.08); osc.stop(ctx.currentTime + 0.22);
         } else {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(160, ctx.currentTime);
-          osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.45);
-          gain.gain.setValueAtTime(0.2, ctx.currentTime);
-          gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.45);
-          osc.start();
-          osc.stop(ctx.currentTime + 0.45);
+          const osc = ctx.createOscillator(); const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination); osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(160, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.45);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.linearRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+          osc.start(); osc.stop(ctx.currentTime + 0.45);
         }
-      } catch (e) {
-        console.warn('AudioContext bloqueado:', e);
-      }
+      } catch (e) {}
     }
 
     function ejecutarVibracionFeedback(tipo) {
-      if (!navigator.vibrate) return;
-      if (tipo === 'exito') {
-        navigator.vibrate(150); 
-      } else {
-        navigator.vibrate([250, 100, 250]); 
-      }
+      if (navigator.vibrate) { if (tipo === 'exito') navigator.vibrate(150); else navigator.vibrate([250, 100, 250]); }
     }
 
     function isDuplicate(text) {
-      const now = Date.now();
-      if (lastScan.text === text && (now - lastScan.time) < 4000) return true;
-      lastScan = { text, time: now };
-      return false;
+      const now = Date.now(); if (lastScan.text === text && (now - lastScan.time) < 4000) return true;
+      lastScan = { text, time: now }; return false;
     }
 
     async function stopScanner() {
       if (!html5QrCode) return;
-      try { await html5QrCode.stop(); } catch(e) {}
-      try { await html5QrCode.clear(); } catch(e) {}
+      try { await html5QrCode.stop(); await html5QrCode.clear(); } catch(e) {}
       html5QrCode = null;
     }
 
@@ -297,14 +208,12 @@ button:active {
       select.innerHTML = '';
       if (!devices || !devices.length) throw new Error('No se detectaron cámaras.');
       devices.forEach((cam, index) => {
-        const option = document.createElement('option');
-        option.value = cam.id;
+        const option = document.createElement('option'); option.value = cam.id;
         const label = (cam.label || '').toLowerCase();
         option.textContent = /(back|rear|trasera)/i.test(label) ? 'Cámara trasera' : ('Cámara ' + (index + 1));
         select.appendChild(option);
       });
-      const rear = devices.find(d => /(back|rear|trasera)/i.test((d.label || '').toLowerCase()));
-      currentCameraId = rear ? rear.id : devices[0].id;
+      currentCameraId = devices.find(d => /(back|rear|trasera)/i.test((d.label || '').toLowerCase()))?.id || devices[0].id;
       select.value = currentCameraId;
       select.onchange = function(){ currentCameraId = this.value; };
     }
@@ -312,52 +221,22 @@ button:active {
     async function startScanner() {
       try {
         setStatus('Solicitando permiso de cámara...', 'warn');
-        await stopScanner();
-        await ensureCamerasLoaded();
+        await stopScanner(); await ensureCamerasLoaded();
         html5QrCode = new Html5Qrcode('reader');
-        await html5QrCode.start(
-          { deviceId: { exact: currentCameraId } },
-          { fps: 10, qrbox: { width: 260, height: 260 }, aspectRatio: 1 },
-          onScanSuccess,
-          function(){}
-        );
+        await html5QrCode.start({ deviceId: { exact: currentCameraId } }, { fps: 10, qrbox: { width: 260, height: 260 }, aspectRatio: 1 }, onScanSuccess, function(){});
         setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
-      } catch (error) {
-        setStatus('No se pudo activar la cámara: ' + (error.message || error), 'danger');
-      }
+      } catch (error) { setStatus('No se pudo activar la cámara: ' + error.message, 'danger'); }
     }
 
     function registrarPorJsonp(id, estado) {
       return new Promise((resolve, reject) => {
         const callbackName = 'qrCallback_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
         const script = document.createElement('script');
-        const timeout = setTimeout(() => {
-          cleanup();
-          reject(new Error('Tiempo de espera agotado al registrar.'));
-        }, 12000);
-
-        function cleanup() {
-          clearTimeout(timeout);
-          if (script.parentNode) script.parentNode.removeChild(script);
-          delete window[callbackName];
-        }
-
-        window[callbackName] = function(response) {
-          cleanup();
-          resolve(response);
-        };
-
-        script.onerror = function() {
-          cleanup();
-          reject(new Error('No se pudo contactar con Apps Script.'));
-        };
-
-        script.src = APPS_SCRIPT_URL +
-          '?page=registrar_jsonp' +
-          '&id=' + encodeURIComponent(id) +
-          '&estado=' + encodeURIComponent(estado) +
-          '&callback=' + encodeURIComponent(callbackName);
-
+        const timeout = setTimeout(() => { cleanup(); reject(new Error('Tiempo agotado.')); }, 12000);
+        function cleanup() { clearTimeout(timeout); if (script.parentNode) script.parentNode.removeChild(script); delete window[callbackName]; }
+        window[callbackName] = function(response) { cleanup(); resolve(response); };
+        script.onerror = function() { cleanup(); reject(new Error('Error de conexión con Apps Script.')); };
+        script.src = APPS_SCRIPT_URL + '?page=registrar_jsonp&id=' + encodeURIComponent(id) + '&estado=' + encodeURIComponent(estado) + '&callback=' + encodeURIComponent(callbackName);
         document.body.appendChild(script);
       });
     }
@@ -368,23 +247,24 @@ button:active {
       const id = decodedText.trim();
       const estado = document.getElementById('estado').value;
       
-      setStatus('QR detectado. Registrando asistencia...', 'warn');
+      setStatus('QR detectado. Procesando...', 'warn');
       await stopScanner();
 
       try {
         const response = await registrarPorJsonp(id, estado);
         if (response && response.exito) {
-          emitirAudioFeedback('exito');
-          ejecutarVibracionFeedback('exito');
-          setStatus(`${response.estado} registrado: ${response.nombre} ${response.hora ? '- ' + response.hora : ''}`, 'ok');
+          emitirAudioFeedback('exito'); ejecutarVibracionFeedback('exito');
+          setStatus(`${response.estado} registrado: ${response.nombre}`, 'ok');
+          
+          // Si el Backend te retorna un nodo de historial (.ultimos), la lista se dibuja sola aquí:
+          if(response.ultimos) actualizarTablaHistorial(response.ultimos);
+          
         } else {
-          emitirAudioFeedback('error');
-          ejecutarVibracionFeedback('error');
-          setStatus((response && response.mensaje) || 'No se pudo registrar.', 'danger');
+          emitirAudioFeedback('error'); ejecutarVibracionFeedback('error');
+          setStatus(response.mensaje || 'No se pudo registrar.', 'danger');
         }
       } catch (error) {
-        emitirAudioFeedback('error');
-        ejecutarVibracionFeedback('error');
+        emitirAudioFeedback('error'); ejecutarVibracionFeedback('error');
         setStatus(error.message || 'Error al registrar.', 'danger');
       }
 
