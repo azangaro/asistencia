@@ -52,8 +52,9 @@ h1 { margin: 0; font-size: 2rem; font-weight: 700; color: #0f172a; }
 @media (min-width: 640px) { .row { grid-template-columns: 1fr 1fr; } }
 
 label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; color: #475569; }
-select { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-size: 15px; transition: .3s; cursor: pointer; }
-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16,185,129,.15); }
+select, input[type="text"] { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-size: 15px; transition: .3s; }
+select:focus, input[type="text"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16,185,129,.15); }
+select { cursor: pointer; }
 
 button {
     width: 100%; margin-top: 25px; padding: 15px; border: none; border-radius: 14px;
@@ -75,6 +76,16 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     min-height: 250px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
 }
 
+/* SECCIÓN INGRESO MANUAL */
+.manual-section {
+    margin: 20px auto; width: 100%; max-width: 420px; padding: 20px;
+    background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 20px;
+    animation: fadeIn .3s ease; display: none; /* Oculto por defecto */
+}
+.manual-group { display: flex; gap: 10px; margin-top: 8px; }
+.manual-group input { flex: 1; }
+.manual-group button { width: auto; margin-top: 0; padding: 0 24px; }
+
 .status { margin-top: 20px; padding: 16px 18px; border-radius: 16px; font-weight: 600; font-size: 1.05rem; line-height: 1.5; border-left: 5px solid; animation: fadeIn .3s ease; }
 .ok { background: #e6f4ea !important; border-color: #137333 !important; color: #137333 !important; }
 .warn { background: #fef7e0 !important; border-color: #b06000 !important; color: #b06000 !important; }
@@ -89,7 +100,6 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     padding: 12px 16px; border-radius: 12px; background: #f8fafc;
     border: 1px solid #e2e8f0; font-size: 0.95rem; animation: slideIn 0.3s ease-out;
 }
-/* Estilo especial para cuando el item guardado es un error */
 .history-item.item-error { border-color: #fca5a5; background: #fff5f5; }
 
 .history-info { display: flex; flex-direction: column; gap: 2px; }
@@ -119,8 +129,17 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     </div>
     
     <button id="btnStart" type="button">Activar cámara</button>
+    
+    <div id="manualSection" class="manual-section">
+      <label for="manualId">Código / ID Manual</label>
+      <div class="manual-group">
+        <input type="text" id="manualId" placeholder="Ej. 10293847" autocomplete="off">
+        <button id="btnManualSubmit" type="button">Enviar</button>
+      </div>
+    </div>
+
     <div id="reader"></div>
-    <div id="status" class="status">Pulsa "Activar cámara" para iniciar.</div>
+    <div id="status" class="status">Pulsa "Activar cámara" para iniciar o usa el registro manual.</div>
 
     <div class="history-section">
       <div class="history-title">Últimos Registros de la Sesión</div>
@@ -141,6 +160,11 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
     
     let listaRegistrosLocales = [];
 
+    // Mostrar el panel manual inicialmente si la cámara está apagada
+    document.addEventListener("DOMContentLoaded", () => {
+      actualizarInterfazBoton(false);
+    });
+
     function setStatus(msg, type) {
       const el = document.getElementById('status');
       el.textContent = msg;
@@ -152,7 +176,6 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       else if (type === 'danger') { body.classList.add('flash-danger'); setTimeout(() => body.classList.remove('flash-danger'), 2000); }
     }
 
-    // Modificado para recibir un parámetro "esError" opcional
     function agregarAlHistorialLocal(nombre, estado, esError = false) {
       const contenedor = document.getElementById('historyList');
       const noRecordsEl = document.getElementById('noRecords');
@@ -169,7 +192,6 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       contenedor.innerHTML = '';
       listaRegistrosLocales.forEach(item => {
         const div = document.createElement('div');
-        
         let claseBadge = '';
         let claseNombreError = '';
         
@@ -281,14 +303,22 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       }
     }
 
+    // Gestiona qué elementos visuales mostrar según el estado de la cámara
     function actualizarInterfazBoton(activo) {
       const btn = document.getElementById('btnStart');
+      const readerDiv = document.getElementById('reader');
+      const manualSection = document.getElementById('manualSection');
+
       if(activo) {
         btn.textContent = "Desactivar cámara";
         btn.classList.add('btn-stop');
+        readerDiv.style.display = 'block';
+        manualSection.style.display = 'none'; // Ocultar entrada manual
       } else {
         btn.textContent = "Activar cámara";
         btn.classList.remove('btn-stop');
+        readerDiv.style.display = 'none';     // Ocultar cuadro negro de la cámara
+        manualSection.style.display = 'block'; // Mostrar entrada manual
       }
     }
 
@@ -297,7 +327,7 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       btn.disabled = true;
       if (scannerRunning) {
         await stopScanner();
-        setStatus('Cámara desactivada por el usuario.', 'warn');
+        setStatus('Cámara desactivada. Modo de ingreso manual activo.', 'warn');
       } else {
         await startScanner();
       }
@@ -317,55 +347,23 @@ button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
       });
     }
 
-    async function onScanSuccess(decodedText) {
-      if (isRegistering || isDuplicate(decodedText)) return;
-      
+    // Procesa el registro centralizando la lógica (para cámara y teclado)
+    async function procesarRegistro(idLimpio) {
+      if (isRegistering) return;
       isRegistering = true;
-      const id = decodedText.trim();
-      const estado = document.getElementById('estado').value;
       
-      setStatus('QR detectado. Procesando solicitud...', 'warn');
+      const estado = document.getElementById('estado').value;
+      setStatus('Procesando solicitud...', 'warn');
 
       try {
-        const response = await registrarPorJsonp(id, estado);
+        const response = await registrarPorJsonp(idLimpio, estado);
         if (response && response.exito) {
           emitirAudioFeedback('exito'); 
           ejecutarVibracionFeedback('exito');
           setStatus(`${response.estado} registrado: ${response.nombre}`, 'ok');
-          
-          // Registro exitoso normal
           agregarAlHistorialLocal(response.nombre, response.estado, false);
+          
+          // Si fue manual, limpia el input tras registrar con éxito
+          document.getElementById('manualId').value = '';
         } else {
-          emitirAudioFeedback('error'); 
-          ejecutarVibracionFeedback('error');
-          
-          const msgError = response.mensaje || 'No se pudo registrar.';
-          setStatus(msgError, 'danger');
-          
-          // Agrega el error devuelto por la lógica de Apps Script al historial
-          agregarAlHistorialLocal(`ID: ${id} - ${msgError}`, 'ERROR', true);
-        }
-      } catch (error) {
-        emitirAudioFeedback('error'); 
-        ejecutarVibracionFeedback('error');
-        
-        const msgFallo = error.message || 'Error al registrar.';
-        setStatus(msgFallo, 'danger');
-        
-        // Agrega problemas de conexión o timeouts al historial
-        agregarAlHistorialLocal(`ID: ${id} - ${msgFallo}`, 'FALLO', true);
-      }
-
-      setTimeout(() => {
-        isRegistering = false;
-        if (!isRegistering && scannerRunning) {
-          setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
-        }
-      }, 2500);
-    }
-
-    document.getElementById('btnStart').addEventListener('click', toggleScanner);
-    window.addEventListener('beforeunload', function(){ stopScanner(); });
-  </script>
-</body>
-</html>
+          emitirAudioFeedback('error');
