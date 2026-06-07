@@ -14,6 +14,7 @@
     --primary: #10b981;
     --primary-hover: #059669;
     --danger: #ef4444;
+    --danger-hover: #dc2626;
     --warning: #f59e0b;
     --success: #10b981;
     --text: #1e293b;
@@ -54,6 +55,7 @@ label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600;
 select { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; font-size: 15px; transition: .3s; cursor: pointer; }
 select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(16,185,129,.15); }
 
+/* ESTILOS DINÁMICOS DEL BOTÓN */
 button {
     width: 100%; margin-top: 25px; padding: 15px; border: none; border-radius: 14px;
     background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white;
@@ -61,6 +63,12 @@ button {
     box-shadow: 0 10px 15px -3px rgba(16,185,129,0.3);
 }
 button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16,185,129,0.4); }
+
+button.btn-stop {
+    background: linear-gradient(135deg, var(--danger), var(--danger-hover));
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+}
+button.btn-stop:hover { box-shadow: 0 15px 20px -3px rgba(239, 68, 68, 0.4); }
 
 #reader {
     margin: 30px auto 20px; width: 100%; max-width: 420px; overflow: hidden;
@@ -110,9 +118,8 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
     <div id="reader"></div>
     <div id="status" class="status">Pulsa "Activar cámara" para iniciar.</div>
 
-    <!-- SECCIÓN DE ÚLTIMOS REGISTROS -->
     <div class="history-section">
-      <div class="history-title">Últimos Registros de la Sesión</div>
+      <div class="history-title">Últimos Registros</div>
       <div id="historyList" class="history-list">
         <div id="noRecords" style="color: var(--text-secondary); font-size: 0.9rem; text-align: center; padding: 10px;">Esperando lecturas...</div>
       </div>
@@ -121,14 +128,13 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
   </div></div>
 
   <script>
-    // REEMPLAZA CON TU URL DE APPS SCRIPT SI ES NECESARIO
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzGGZGQm2zr1mF21fUk_y4pBXl3o7nLqZg7clE_gVQ5agKoX6lpX5jmE6DRa5ClmF1H/exec';
     let html5QrCode = null;
     let currentCameraId = '';
     let lastScan = { text: '', time: 0 };
     let isRegistering = false;
+    let scannerRunning = false; // Variable de control para saber si la cámara está activa
     
-    // Array local para almacenar los últimos registros capturados
     let listaRegistrosLocales = [];
 
     function setStatus(msg, type) {
@@ -142,22 +148,19 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
       else if (type === 'danger') { body.classList.add('flash-danger'); setTimeout(() => body.classList.remove('flash-danger'), 2000); }
     }
 
-    // Agrega y renderiza el registro en la lista de abajo de forma inmediata
     function agregarAlHistorialLocal(nombre, estado) {
       const contenedor = document.getElementById('historyList');
       const noRecordsEl = document.getElementById('noRecords');
-      if (noRecordsEl) noRecordsEl.remove(); // Quitar el texto de "Esperando lecturas..."
+      if (noRecordsEl) noRecordsEl.remove();
 
       const ahora = new Date();
       const horaString = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-      // Guardar en el array (máximo 5 registros en pantalla)
       listaRegistrosLocales.unshift({ nombre, estado, hora: horaString });
       if (listaRegistrosLocales.length > 5) {
         listaRegistrosLocales.pop();
       }
 
-      // Redibujar la lista limpia
       contenedor.innerHTML = '';
       listaRegistrosLocales.forEach(item => {
         const div = document.createElement('div');
@@ -200,14 +203,21 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
     }
 
     function isDuplicate(text) {
-      const now = Date.now(); if (lastScan.text === text && (now - lastScan.time) < 4000) return true;
-      lastScan = { text, time: now }; return false;
+      const now = Date.now(); 
+      if (lastScan.text === text && (now - lastScan.time) < 5000) return true;
+      lastScan = { text, time: now }; 
+      return false;
     }
 
     async function stopScanner() {
       if (!html5QrCode) return;
-      try { await html5QrCode.stop(); await html5QrCode.clear(); } catch(e) {}
+      try { 
+        await html5QrCode.stop(); 
+        await html5QrCode.clear(); 
+      } catch(e) {}
       html5QrCode = null;
+      scannerRunning = false;
+      actualizarInterfazBoton(false);
     }
 
     async function ensureCamerasLoaded() {
@@ -223,26 +233,69 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
         option.textContent = /(back|rear|trasera)/i.test(label) ? 'Cámara trasera' : ('Cámara ' + (index + 1));
         select.appendChild(option);
       });
-      currentCameraId = devices.find(d => /(back|rear|trasera)/i.test((d.label || '').toLowerCase()))?.id || devices[0].id;
+      if(!currentCameraId) {
+        currentCameraId = devices.find(d => /(back|rear|trasera)/i.test((d.label || '').toLowerCase()))?.id || devices[0].id;
+      }
       select.value = currentCameraId;
-      select.onchange = function(){ currentCameraId = this.value; };
+      
+      select.onchange = async function(){ 
+        currentCameraId = this.value; 
+        if(scannerRunning) { await startScanner(); }
+      };
     }
 
     async function startScanner() {
       try {
         setStatus('Solicitando permiso de cámara...', 'warn');
-        await stopScanner(); await ensureCamerasLoaded();
+        if(html5QrCode) { await stopScanner(); }
+        await ensureCamerasLoaded();
         html5QrCode = new Html5Qrcode('reader');
-        await html5QrCode.start({ deviceId: { exact: currentCameraId } }, { fps: 10, qrbox: { width: 260, height: 260 }, aspectRatio: 1 }, onScanSuccess, function(){});
+        await html5QrCode.start(
+          { deviceId: { exact: currentCameraId } }, 
+          { fps: 15, qrbox: { width: 260, height: 260 }, aspectRatio: 1 }, 
+          onScanSuccess, 
+          function(){}
+        );
+        scannerRunning = true;
+        actualizarInterfazBoton(true);
         setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
-      } catch (error) { setStatus('No se pudo activar la cámara: ' + error.message, 'danger'); }
+      } catch (error) { 
+        setStatus('No se pudo activar la cámara: ' + error.message, 'danger'); 
+        scannerRunning = false;
+        actualizarInterfazBoton(false);
+      }
+    }
+
+    // Cambia visualmente el texto y color del botón principal
+    function actualizarInterfazBoton(activo) {
+      const btn = document.getElementById('btnStart');
+      if(activo) {
+        btn.textContent = "Desactivar cámara";
+        btn.classList.add('btn-stop');
+      } else {
+        btn.textContent = "Activar cámara";
+        btn.classList.remove('btn-stop');
+      }
+    }
+
+    // Maneja el clic alternando los estados encendido/apagado
+    async function toggleScanner() {
+      const btn = document.getElementById('btnStart');
+      btn.disabled = true; // Prevenir doble clic accidental mientras procesa
+      if (scannerRunning) {
+        await stopScanner();
+        setStatus('Cámara desactivada por el usuario.', 'warn');
+      } else {
+        await startScanner();
+      }
+      btn.disabled = false;
     }
 
     function registrarPorJsonp(id, estado) {
       return new Promise((resolve, reject) => {
         const callbackName = 'qrCallback_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
         const script = document.createElement('script');
-        const timeout = setTimeout(() => { cleanup(); reject(new Error('Tiempo agotado.')); }, 12000);
+        const timeout = setTimeout(() => { cleanup(); reject(new Error('Tiempo de espera agotado.')); }, 12000);
         function cleanup() { clearTimeout(timeout); if (script.parentNode) script.parentNode.removeChild(script); delete window[callbackName]; }
         window[callbackName] = function(response) { cleanup(); resolve(response); };
         script.onerror = function() { cleanup(); reject(new Error('Error de conexión con Apps Script.')); };
@@ -253,12 +306,12 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
 
     async function onScanSuccess(decodedText) {
       if (isRegistering || isDuplicate(decodedText)) return;
+      
       isRegistering = true;
       const id = decodedText.trim();
       const estado = document.getElementById('estado').value;
       
-      setStatus('QR detectado. Procesando...', 'warn');
-      await stopScanner();
+      setStatus('QR detectado. Procesando solicitud...', 'warn');
 
       try {
         const response = await registrarPorJsonp(id, estado);
@@ -266,24 +319,28 @@ button:hover { transform: translateY(-2px); box-shadow: 0 15px 20px -3px rgba(16
           emitirAudioFeedback('exito'); 
           ejecutarVibracionFeedback('exito');
           setStatus(`${response.estado} registrado: ${response.nombre}`, 'ok');
-          
-          // AGREGA EL ALUMNO AL HISTORIAL LOCAL INMEDIATAMENTE
           agregarAlHistorialLocal(response.nombre, response.estado);
-          
         } else {
-          emitirAudioFeedback('error'); ejecutarVibracionFeedback('error');
+          emitirAudioFeedback('error'); 
+          ejecutarVibracionFeedback('error');
           setStatus(response.mensaje || 'No se pudo registrar.', 'danger');
         }
       } catch (error) {
-        emitirAudioFeedback('error'); ejecutarVibracionFeedback('error');
+        emitirAudioFeedback('error'); 
+        ejecutarVibracionFeedback('error');
         setStatus(error.message || 'Error al registrar.', 'danger');
       }
 
-      isRegistering = false;
-      setTimeout(() => { startScanner(); }, 2200);
+      setTimeout(() => {
+        isRegistering = false;
+        // Solo reestablecer a "Escaneando..." si el usuario no ha apagado la cámara en este intervalo
+        if (!isRegistering && scannerRunning) {
+          setStatus('Escaneando... acerca el QR al recuadro.', 'ok');
+        }
+      }, 2500);
     }
 
-    document.getElementById('btnStart').addEventListener('click', startScanner);
+    document.getElementById('btnStart').addEventListener('click', toggleScanner);
     window.addEventListener('beforeunload', function(){ stopScanner(); });
   </script>
 </body>
